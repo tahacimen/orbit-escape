@@ -25,12 +25,12 @@ private struct AroroGameWebView: UIViewRepresentable {
         webView.allowsLinkPreview = false
         webView.accessibilityLabel = "Aroro oyun alanı"
 
-        // Xcode can preserve the resource directory or flatten its contents,
-        // depending on the generated project. Support both bundle layouts.
+        // Keep the game assets inside the iOS target and support Xcode's two
+        // valid resource layouts (folder-preserving or flattened).
         let indexURL = Bundle.main.url(
             forResource: "index",
             withExtension: "html",
-            subdirectory: "web-preview"
+            subdirectory: "WebGame"
         ) ?? Bundle.main.url(forResource: "index", withExtension: "html")
 
         guard let indexURL else {
