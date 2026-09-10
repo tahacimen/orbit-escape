@@ -34,10 +34,10 @@ private struct HomeView: View {
         VStack(spacing: 24) {
             Spacer()
             VStack(spacing: 10) {
-                Text("ORBIT")
+                Text("ARORO")
                     .font(.system(size: 48, weight: .black, design: .rounded))
                     .foregroundStyle(OrbitTheme.cyan)
-                Text("ESCAPE")
+                Text("HALKADAN KAÇ")
                     .font(.system(size: 48, weight: .black, design: .rounded))
                     .foregroundStyle(OrbitTheme.lime)
                 Text("İÇTEN DIŞA KAÇ")
