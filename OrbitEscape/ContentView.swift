@@ -25,12 +25,19 @@ private struct AroroGameWebView: UIViewRepresentable {
         webView.allowsLinkPreview = false
         webView.accessibilityLabel = "Aroro oyun alanı"
 
-        guard let indexURL = Bundle.main.url(
+        // Xcode can preserve the resource directory or flatten its contents,
+        // depending on the generated project. Support both bundle layouts.
+        let indexURL = Bundle.main.url(
             forResource: "index",
             withExtension: "html",
             subdirectory: "web-preview"
-        ) else {
-            assertionFailure("Bundled Aroro game files could not be found.")
+        ) ?? Bundle.main.url(forResource: "index", withExtension: "html")
+
+        guard let indexURL else {
+            webView.loadHTMLString(
+                "<main style='font:600 18px -apple-system;padding:48px;color:#263b47'>Aroro oyun dosyaları yüklenemedi.</main>",
+                baseURL: nil
+            )
             return webView
         }
 
