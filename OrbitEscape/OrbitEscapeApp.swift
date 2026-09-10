@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct OrbitEscapeApp: App {
+struct AroroApp: App {
     @State private var progress = PlayerProgress()
 
     var body: some Scene {

@@ -140,7 +140,7 @@ private struct PrivacyNoticeView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Orbit Escape kişisel veri, konum, reklam kimliği veya analiz verisi toplamaz.")
+                    Text("Aroro kişisel veri, konum, reklam kimliği veya analiz verisi toplamaz.")
                     Text("Bölüm ilerlemesi, yıldızlar ve ses/titreşim tercihleri yalnızca bu cihazda saklanır. Bu bilgiler uygulama dışına gönderilmez ve geliştirici tarafından erişilemez.")
                     Text("Uygulama reklam, üçüncü taraf analiz SDK’sı veya çevrimiçi satın alma içermez.")
                 }

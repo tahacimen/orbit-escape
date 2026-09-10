@@ -1,11 +1,11 @@
-# Orbit Escape — Oyun Tasarım Dokümanı
+# Aroro — Oyun Tasarım Dokümanı
 
 > Sürüm: 0.1 — konsept ve ilk üretim planı  
 > Platform hedefi: iPhone/iPad için yerel iOS uygulaması; App Store yayını
 
 ## 1. Kısa fikir
 
-**Orbit Escape**, klasik “içe ok saplama” fikrini tersine çeviren hızlı bir refleks bulmacasıdır. Oyuncu ekrana her bastığında iç çemberdeki fırlatıcı bir enerji oku ateşler. Ok, dönen dış halkadaki **açık kapılardan** geçip dışarı kaçmalıdır. İç halkadaki mevcut oklar hareketli engellerdir; yeni ok onlara çarparsa bölüm biter.
+**Aroro**, klasik “içe ok saplama” fikrini tersine çeviren hızlı bir refleks bulmacasıdır. Oyuncu ekrana her bastığında iç çemberdeki fırlatıcı bir enerji oku ateşler. Ok, dönen dış halkadaki **açık kapılardan** geçip dışarı kaçmalıdır. İç halkadaki mevcut oklar hareketli engellerdir; yeni ok onlara çarparsa bölüm biter.
 
 Her bölüm, ritim yakalama, doğru anda ateşleme ve giderek karmaşıklaşan iki halka davranışını birleştirir. Kısa turlar, güçlü görsel geri bildirim ve net bir “bir kez daha deneyeyim” döngüsü hedeflenir.
 
@@ -214,7 +214,7 @@ SpriteKit, 2D oyunlar için Metal destekli çizim, şekiller ve parçacıklar su
 
 Tasarım, aşağıdaki varsayımlarla hazırlandı: portre modunda, neon uzay temalı ve çevrimiçi olmayan bir mobil web oyunu. Üretime geçmeden önce şu tercihleri senden almak iyi olur:
 
-1. Oyunun adı **Orbit Escape** kalsın mı, yoksa Türkçe bir isim mi istersin? (Örn. `Yörünge Kaçışı`.)
+1. Oyunun adı **Aroro** olarak belirlendi.
 2. Hedef sadece tarayıcı/PWA mı, yoksa Android/iOS mağazalarına da çıkması gerekiyor mu?
 3. Oyunun havası neon-uzay mı olsun, yoksa daha sevimli, sade veya başka bir temaya mı geçelim?
 4. Hata sistemi 3 canlı mı kalsın, yoksa tek çarpışmada bölüm bittiği daha sert arcade biçimini mi tercih edersin?

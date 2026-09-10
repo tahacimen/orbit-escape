@@ -1,4 +1,4 @@
-# Orbit Escape iOS
+# Aroro iOS
 
 App Store hedefli, portre yönelimli 2D refleks oyunu. Oyuncu dokunarak oku içeriden dışarı fırlatır; dış halkanın dönen açık geçitlerinden kaçırmaya çalışır. İç halkadaki önceki oklar engeldir.
 
@@ -19,8 +19,8 @@ Bu klasör Windows'ta hazırlanabilir; ancak iPhone simülatörü, iOS derlemesi
 1. Projeyi Mac'e taşıyın.
 2. [XcodeGen](https://github.com/yonaskolb/XcodeGen) kurun (`brew install xcodegen`).
 3. Bu klasörde `xcodegen generate` komutunu çalıştırın.
-4. `OrbitEscape.xcodeproj` dosyasını Xcode ile açın.
-5. `OrbitEscape` şemasından bir iPhone simülatörü veya bağlı cihaz seçip çalıştırın.
+4. `Aroro.xcodeproj` dosyasını Xcode ile açın.
+5. `Aroro` şemasından bir iPhone simülatörü veya bağlı cihaz seçip çalıştırın.
 6. `Signing & Capabilities` kısmında kendi Apple Developer Team'inizi seçin ve benzersiz bundle kimliği verin.
 
 ## App Store'a çıkarma öncesi
