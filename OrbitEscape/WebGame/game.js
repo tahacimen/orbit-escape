@@ -1,10 +1,32 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const canvas = $("game"), ctx = canvas.getContext("2d");
-  const locale = navigator.language.toLowerCase().startsWith("tr") ? "tr" : "en";
+  const requestedLocale = new URLSearchParams(window.location.search).get("lang");
+  const locale = requestedLocale === "tr" || requestedLocale === "en" ? requestedLocale : (navigator.language.toLowerCase().startsWith("tr") ? "tr" : "en");
   document.documentElement.lang = locale;
   const screens = [$("home"), $("levels"), $("settings")];
-  if(locale === "en") { $("play-button").textContent="PLAY"; $("levels-button").textContent="LEVELS"; $("settings-button").textContent="SETTINGS"; document.querySelector(".hud-bottom p").textContent="Drag: aim · Tap: fire"; }
+  const copy = locale === "en" ? {
+    eyebrow: "ESCAPE FROM WITHIN", level: "LEVEL", escape: "ESCAPES", flow: "FLOW", points: "PTS",
+    turbo: "TURBO READY", fever: "STAR FLOW", last: "Level", coins: "Orbit Tokens",
+    levels: "LEVELS", settings: "SETTINGS", sound: "Sound effects", haptics: "Haptics", motion: "Reduce motion",
+    note: "Gaps use a broken line and closed surfaces use a solid line, so color is never the only signal.",
+    failed: "ORBIT BROKEN", cleared: "ORBIT CLEARED", next: "NEXT LEVEL", retry: "TRY AGAIN", back: "BACK TO LEVELS",
+    loss: "The arrow hit an inner-ring arrow or a closed section."
+  } : {
+    eyebrow: "İÇTEN DIŞA KAÇ", level: "BÖLÜM", escape: "KAÇIŞ", flow: "AKIŞ", points: "PUAN",
+    turbo: "TURBO HAZIR", fever: "YILDIZ AKIŞI", last: "Bölüm", coins: "Yörünge Pulu",
+    levels: "BÖLÜMLER", settings: "AYARLAR", sound: "Ses efektleri", haptics: "Titreşim", motion: "Hareketi azalt",
+    note: "Renkler tek başına bilgi taşımaz: açık geçit kesik biçimde, kapalı yüzey düz biçimde gösterilir.",
+    failed: "YÖRÜNGE KIRILDI", cleared: "YÖRÜNGE TAMAMLANDI", next: "SONRAKİ BÖLÜM", retry: "TEKRAR DENE", back: "BÖLÜMLERE DÖN",
+    loss: "Ok, iç halkadaki oka veya kapalı bölgeye çarptı."
+  };
+  if(locale === "en") {
+    $("play-button").textContent="PLAY"; $("levels-button").textContent="LEVELS"; $("settings-button").textContent="SETTINGS";
+    document.querySelector(".eyebrow").textContent=copy.eyebrow; document.querySelectorAll(".panel-screen h2")[0].textContent=copy.levels;
+    document.querySelectorAll(".panel-screen h2")[1].textContent=copy.settings; document.querySelectorAll(".settings-card label span").forEach((node,index)=>node.textContent=[copy.sound,copy.haptics,copy.motion][index]);
+    document.querySelector(".settings-note").textContent=copy.note; document.querySelector(".hud-bottom p").textContent="Drag: aim · Tap: fire";
+    document.querySelectorAll(".back-home").forEach(button=>button.setAttribute("aria-label","Back to home")); $("quit-button").setAttribute("aria-label","Back to levels"); $("pause-button").setAttribute("aria-label","Pause game");
+  }
   const hud = $("hud"), result = $("result");
   const saved = JSON.parse(localStorage.getItem("orbitEscape") || "{}");
   const store = { highest: saved.highest || 1, stars: saved.stars || {}, coins: saved.coins || 0, sound: saved.sound ?? true, haptics: saved.haptics ?? true, motion: saved.motion ?? matchMedia("(prefers-reduced-motion: reduce)").matches };
@@ -19,19 +41,19 @@
   function resize(){const r=canvas.getBoundingClientRect(),d=devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);}
   addEventListener("resize",resize); resize();
   function hideAll(){screens.forEach(s=>s.classList.add("hidden"));hud.classList.add("hidden");result.classList.add("hidden");}
-  function home(){state.mode="home";hideAll();$("home").classList.remove("hidden");$("last-level").textContent=`Bölüm ${store.highest} · ${store.coins} Yörünge Pulu`;}
+  function home(){state.mode="home";hideAll();$("home").classList.remove("hidden");$("last-level").textContent=`${copy.last} ${store.highest} · ${store.coins} ${copy.coins}`;}
   function levels(){state.mode="levels";hideAll();$("levels").classList.remove("hidden");renderLevels();}
   function settings(){state.mode="settings";hideAll();$("settings").classList.remove("hidden");$("sound-toggle").checked=store.sound;$("haptics-toggle").checked=store.haptics;$("motion-toggle").checked=store.motion;}
-  function renderLevels(){const grid=$("level-grid");grid.innerHTML="";for(let n=1;n<=60;n++){const b=document.createElement("button"),open=n<=store.highest;b.className="level"+(open?"":" locked");b.disabled=!open;b.innerHTML=`<span>${n}</span><small>${"★".repeat(store.stars[n]||0)}</small>`;b.setAttribute("aria-label",open?`Bölüm ${n}`:`Bölüm ${n}, kilitli`);b.onclick=()=>start(n);grid.appendChild(b)}}
+  function renderLevels(){const grid=$("level-grid");grid.innerHTML="";for(let n=1;n<=60;n++){const b=document.createElement("button"),open=n<=store.highest;b.className="level"+(open?"":" locked");b.disabled=!open;b.innerHTML=`<span>${n}</span><small>${"★".repeat(store.stars[n]||0)}</small>`;b.setAttribute("aria-label",locale==="en"?(open?`Level ${n}`:`Level ${n}, locked`):(open?`Bölüm ${n}`:`Bölüm ${n}, kilitli`));b.onclick=()=>start(n);grid.appendChild(b)}}
   function start(n){const l=levelData(n);Object.assign(state,{mode:"game",level:n,escaped:0,lives:l.lives,required:l.required,outer:0,inner:0,projectile:null,particles:[],elapsed:0,paused:false,shake:0,ending:false,combo:0,score:0,fever:0});state.arrows=Array.from({length:l.starts},(_,i)=>launchAngle+(i+1)*TAU/(l.starts+1));hideAll();hud.classList.remove("hidden");updateHUD();}
-  function updateHUD(){$("level-label").textContent=`BÖLÜM ${state.level}`;$("escape-label").textContent=`KAÇIŞ ${state.escaped} / ${state.required}`;$("combo-label").textContent=state.turboReady?`TURBO HAZIR · ${state.score} PUAN`:state.fever>0?`YILDIZ AKIŞI · ${state.score} PUAN`:`AKIŞ x${state.combo} · ${state.score} PUAN`;$("lives").innerHTML=Array.from({length:levelData(state.level).lives},(_,i)=>`<i class="life ${i<state.lives?"":"empty"}"></i>`).join("")}
+  function updateHUD(){$("level-label").textContent=`${copy.level} ${state.level}`;$("escape-label").textContent=`${copy.escape} ${state.escaped} / ${state.required}`;$("combo-label").textContent=state.turboReady?`${copy.turbo} · ${state.score} ${copy.points}`:state.fever>0?`${copy.fever} · ${state.score} ${copy.points}`:`${copy.flow} x${state.combo} · ${state.score} ${copy.points}`;$("lives").innerHTML=Array.from({length:levelData(state.level).lives},(_,i)=>`<i class="life ${i<state.lives?"":"empty"}"></i>`).join("")}
   function tone(freq,duration,type="sine"){if(!store.sound)return;audio??=new AudioContext();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.06,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
   function vibrate(pattern){if(store.haptics&&navigator.vibrate)navigator.vibrate(pattern)}
   function turboAngle(){return launchAngle+state.elapsed*1.7+Math.sin(state.elapsed*1.1)*.28}
   function fire(){if(state.mode!=="game"||state.paused||state.projectile||state.ending)return;const angle=launchAngle+state.inner,boost=distance(angle,turboAngle())<.24;tone(boost?510:340,.06,"square");state.projectile={r:15,angle,checkedInner:false,boost};}
   function burst(x,y,color,count){for(let i=0;i<count;i++){const a=Math.random()*TAU,s=55+Math.random()*170;state.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+Math.random()*.35,color,size:2+Math.random()*4})}}
   function resolve(success,x,y,perfect=false,boost=false){if(success){state.escaped++;state.combo++;state.score+=100*state.combo+(perfect?180:0)+(boost?260:0);if(boost){state.fever=Math.max(state.fever,2.4);burst(x,y,"#3debff",store.motion?46:14);tone(960,.2,"triangle");vibrate([10,16,10])}else if(state.combo>=3&&state.fever<=0){state.fever=3.4;burst(x,y,"#3debff",store.motion?42:12);tone(880,.22,"triangle");vibrate([12,20,12])}else{burst(x,y,perfect?"#3debff":"#a7f84b",store.motion?(perfect?30:18):7);tone(perfect?780:660,.12,"sine");vibrate(10)}if(state.escaped>=state.required){finish(true)}else updateHUD()}else{state.lives--;state.combo=0;state.fever=0;state.shake=store.motion?.22:0;burst(x,y,"#ff5d7a",store.motion?26:9);tone(120,.17,"sawtooth");vibrate([20,25,35]);updateHUD();if(state.lives<=0)finish(false)}state.projectile=null;}
-  function finish(win){if(state.ending)return;state.ending=true;setTimeout(()=>{const l=levelData(state.level);let stars=win?(state.lives===l.lives?(state.elapsed<=Math.max(10,25-Math.floor((state.level-1)/10)*2)?3:2):1):0,earned=0;if(win){earned=12+stars*8+Math.floor(state.score/100);store.coins+=earned;store.highest=Math.min(60,Math.max(store.highest,state.level+1));store.stars[state.level]=Math.max(store.stars[state.level]||0,stars);save()}$("result-symbol").className="result-symbol "+(win?"win":"loss");$("result-title").textContent=win?"YÖRÜNGE TAMAMLANDI":"YÖRÜNGE KIRILDI";$("result-copy").textContent=win?`+${earned} Yörünge Pulu · Toplam: ${store.coins}`:"Ok, iç halkadaki oka veya kapalı bölgeye çarptı.";$("result-stars").textContent=win?"★".repeat(stars):"";$("result-primary").textContent=win?(state.level<60?"SONRAKİ BÖLÜM":"BÖLÜMLERE DÖN"):"TEKRAR DENE";$("result-primary").onclick=()=>win?(state.level<60?start(state.level+1):levels()):start(state.level);result.classList.remove("hidden");},win?250:80)}
+  function finish(win){if(state.ending)return;state.ending=true;setTimeout(()=>{const l=levelData(state.level);let stars=win?(state.lives===l.lives?(state.elapsed<=Math.max(10,25-Math.floor((state.level-1)/10)*2)?3:2):1):0,earned=0;if(win){earned=12+stars*8+Math.floor(state.score/100);store.coins+=earned;store.highest=Math.min(60,Math.max(store.highest,state.level+1));store.stars[state.level]=Math.max(store.stars[state.level]||0,stars);save()}$("result-symbol").className="result-symbol "+(win?"win":"loss");$("result-title").textContent=win?copy.cleared:copy.failed;$("result-copy").textContent=win?`+${earned} ${copy.coins} · ${copy.last}: ${store.coins}`:copy.loss;$("result-stars").textContent=win?"★".repeat(stars):"";$("result-primary").textContent=win?(state.level<60?copy.next:copy.back):copy.retry;$("result-primary").onclick=()=>win?(state.level<60?start(state.level+1):levels()):start(state.level);result.classList.remove("hidden");},win?250:80)}
   function radius(){const r=canvas.getBoundingClientRect();return Math.min(r.width,r.height)*.19} function outerRadius(){return radius()*1.77}
   function pt(a,r){return {x:canvas.clientWidth/2+Math.cos(a)*r,y:canvas.clientHeight/2+Math.sin(a)*r}}
   function activeGates(l){const phase=Math.floor((state.level-1)/10);return l.gates.map((g,index)=>{let angle=g.angle,width=g.width;if(phase>=1)width*=.88+.12*(.5+.5*Math.sin(state.elapsed*2.3+index));if(phase>=2)angle+=Math.sin(state.elapsed*1.45+index*1.7)*.14;if(phase>=4)angle+=Math.sin(state.elapsed*3.1+index)*.06;return {angle,width}})}
