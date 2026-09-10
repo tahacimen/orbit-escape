@@ -6,8 +6,8 @@ struct AroroApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(progress: progress)
-                .preferredColorScheme(.dark)
+            ContentView()
+                .preferredColorScheme(.light)
         }
     }
 }
