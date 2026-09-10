@@ -23,3 +23,40 @@ workflows:
     artifacts:
       - /tmp/xcodebuild_logs/*.log
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+
+  ios-testflight:
+    name: Aroro TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: numboo-app-store-connect
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.tahacimen.aroro
+      vars:
+        XCODE_PROJECT: Aroro.xcodeproj
+        XCODE_SCHEME: Aroro
+      xcode: latest
+    scripts:
+      - name: XcodeGen kurulumu ve proje üretimi
+        script: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          xcodegen generate --spec project.yml
+      - name: App Store imzalama profilini uygula
+        script: xcode-project use-profiles
+      - name: İmzalı IPA oluştur
+        script: |
+          xcode-project build-ipa \
+            --project "$CM_BUILD_DIR/$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
